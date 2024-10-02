@@ -40,7 +40,7 @@ jobs:
           args: -- --check
 
       # Step 12: Run clippy to check for lints
-      - uses: actions-rs/clippy-check@v1
+      - uses: giraffate/clippy-action@v1
         with:
           args: --all-features
 
