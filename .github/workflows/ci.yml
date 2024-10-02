@@ -30,6 +30,7 @@ jobs:
         with:
           toolchain: nightly
           override: true
+          components: rustfmt, clippy
 
       # Step 11: Check Rust code formatting with rustfmt
       - name: Run rustfmt
