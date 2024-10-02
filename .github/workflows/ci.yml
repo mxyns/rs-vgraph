@@ -40,9 +40,8 @@ jobs:
           args: -- --check
 
       # Step 12: Run clippy to check for lints
-      - uses: dtolnay/rust-toolchain@clippy
-        with:
-          args: --all-features
+      - name: Run clippy
+        run: cargo clippy --tests --all-targets --all-features -- --deny warnings
 
       - name: Documentation
         uses: actions-rs/cargo@v1
