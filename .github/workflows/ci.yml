@@ -41,16 +41,21 @@ jobs:
 
       # Step 12: Run clippy to check for lints
       - name: Run clippy
-        run: cargo clippy --tests --all-targets --all-features -- --deny warnings
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --tests --all-targets --all-features -- --deny warnings
 
+      # Step 13: Check that document
       - name: Documentation
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: -- --all-features
+          args: --workspace --all-features
 
+      # Step 14: Run tests
       - name: Tests
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -- --all-features
+          args: --workspace --all-features
