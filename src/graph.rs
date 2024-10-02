@@ -1,4 +1,3 @@
-use num_traits;
 use num_traits::PrimInt;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
@@ -9,6 +8,8 @@ pub struct Graph<N, C, D> {
     nodes: HashSet<N>,
     links: HashMap<(N, N), (C, D)>,
 }
+
+pub type CostComputer<N, C, D> = fn(&Graph<N, C, D>, N, N) -> C;
 
 impl<N, C, D> Default for Graph<N, C, D> {
     fn default() -> Self {
@@ -45,7 +46,7 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
         &self,
         start: N,
         goal: N,
-        bypass: Option<fn(&Graph<N, C, D>, N, N) -> C>,
+        bypass: Option<CostComputer<N, C, D>>,
     ) -> Result<Option<(Vec<N>, C)>, String> {
         self.check_node(&start)?;
         self.check_node(&goal)?;
@@ -60,7 +61,7 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
                             if let Some((c, _d)) = self.links.get(&(*v, *n)) {
                                 (*n, *c)
                             } else {
-                                let bypass_cost = bypasser(&self, *v, *n);
+                                let bypass_cost = bypasser(self, *v, *n);
                                 (*n, bypass_cost)
                             }
                         })
@@ -89,6 +90,7 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
         self.get_link(from, to).map(|(_, data)| data)
     }
 
+    #[allow(dead_code)]
     pub fn get_cost(&self, from: &N, to: &N) -> Result<&C, String> {
         self.get_link(from, to).map(|(cost, _)| cost)
     }
@@ -97,10 +99,10 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
         self.check_node(from)?;
         self.check_node(to)?;
 
-        return if let Some(link) = self.links.get(&(*from, *to)) {
+        if let Some(link) = self.links.get(&(*from, *to)) {
             Ok(link)
         } else {
             Err(format!("Link {} -> {} does not exist", from, to))
-        };
+        }
     }
 }

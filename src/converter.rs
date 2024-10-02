@@ -1,6 +1,5 @@
 use crate::bypass_heuristics;
 use crate::graph::Graph;
-use std::hash::{Hash, Hasher};
 
 pub type Version = u32;
 
@@ -30,7 +29,7 @@ pub type ConversionGraph<F> = Graph<Version, Cost, ConverterFunction<F>>;
 impl<F: Versioned> ConversionGraph<F> {
     pub fn convert(&self, file: &mut F, to: Version) -> Result<(), String> {
         let from = file.version();
-        return if let Some((path, _cost)) = self.compute_path(from, to, None)? {
+        if let Some((path, _cost)) = self.compute_path(from, to, None)? {
             for (idx, step) in path.iter().enumerate() {
                 let prev = if idx == 0 {
                     from
@@ -41,14 +40,14 @@ impl<F: Versioned> ConversionGraph<F> {
                     continue;
                 }
 
-                let converter = self.get_data(&prev, &step)?;
+                let converter = self.get_data(&prev, step)?;
                 (converter.f)(file);
             }
 
             Ok(())
         } else {
             Err(format!("Could not apply conversion {} -> {}", from, to))
-        };
+        }
     }
 }
 

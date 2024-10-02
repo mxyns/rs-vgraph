@@ -19,13 +19,13 @@ fn fn_10_to_18(file: &mut u32) {
 
 impl Versioned for u32 {
     fn version(&self) -> Version {
-        return *self;
+        *self
     }
 }
 
 fn main() {
     let mut g: ConversionGraph<u32> = Graph::default();
-    vec![1, 10, 15, 18].iter().for_each(|v| g.add_node(*v));
+    [1, 10, 15, 18].iter().for_each(|v| g.add_node(*v));
     g.add_link(1, 10, 1, converter!(fn_1_to_10)).unwrap();
     g.add_link(10, 1, 1, converter!(fn_10_to_1)).unwrap();
     g.add_link(10, 18, 1, converter!(fn_10_to_18)).unwrap();
