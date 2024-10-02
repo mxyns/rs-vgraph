@@ -1,0 +1,58 @@
+name: Build and Lint pmacct-gauze
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule: [ cron: "40 1 * * *" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      # Set PMACCT_INCLUDE_DIR to the parent directory of the pmacct folder
+      PMACCT_INCLUDE_DIR: ${{ github.workspace }}
+
+    steps:
+      # Step 1: Checkout pmacct-gauze repository (this repository) on master branch
+      - name: Checkout pmacct-gauze repository
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      # Step 6: Set up Rust (switch to nightly toolchain)
+      - name: Install Rust (nightly)
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      # Step 11: Check Rust code formatting with rustfmt
+      - name: Run rustfmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --check
+
+      # Step 12: Run clippy to check for lints
+      - name: Run clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-features
+
+      - name: Documentation
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: -- --all-features
+
+      - name: Tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: -- --all-features
