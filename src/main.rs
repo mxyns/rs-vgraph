@@ -1,9 +1,9 @@
-mod graph;
-mod converter;
 mod bypass_heuristics;
+mod converter;
+mod graph;
 
-use graph::Graph;
 use crate::converter::{ConversionGraph, ConverterFunction, Version, Versioned};
+use graph::Graph;
 
 fn fn_1_to_10(file: &mut u32) {
     *file = 10;
@@ -41,7 +41,9 @@ fn main() {
         converter::print_result(&g, start, goal, path, cost);
     } else {
         println!("Trying bypass");
-        let result = g.compute_path(start, goal, Some(bypass_heuristics::version_diff)).unwrap();
+        let result = g
+            .compute_path(start, goal, Some(bypass_heuristics::version_diff))
+            .unwrap();
 
         if let Some((path, cost)) = result {
             println!("{:#?}", path);

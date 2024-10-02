@@ -1,8 +1,8 @@
+use num_traits;
+use num_traits::PrimInt;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 use std::hash::Hash;
-use num_traits;
-use num_traits::{PrimInt};
 
 #[derive(Debug)]
 pub struct Graph<N, C, D> {
@@ -20,8 +20,7 @@ impl<N, C, D> Default for Graph<N, C, D> {
 }
 
 impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
-
-    fn check_node(&self, node: &N) -> Result<(), String>{
+    fn check_node(&self, node: &N) -> Result<(), String> {
         if self.nodes.contains(node) {
             Ok(())
         } else {
@@ -34,7 +33,6 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
     }
 
     pub fn add_link(&mut self, a: N, b: N, cost_a2b: C, data: D) -> Result<(), String> {
-
         self.check_node(&a)?;
         self.check_node(&b)?;
 
@@ -43,28 +41,45 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
         Ok(())
     }
 
-    pub fn compute_path(&self, start: N, goal: N, bypass: Option<fn(&Graph<N, C, D>, N, N) -> C>) -> Result<Option<(Vec<N>, C)>, String> {
-
+    pub fn compute_path(
+        &self,
+        start: N,
+        goal: N,
+        bypass: Option<fn(&Graph<N, C, D>, N, N) -> C>,
+    ) -> Result<Option<(Vec<N>, C)>, String> {
         self.check_node(&start)?;
         self.check_node(&goal)?;
 
         let result = if let Some(bypasser) = bypass {
-            pathfinding::directed::dijkstra::dijkstra(&start, |v: &N| {
-                self.nodes.iter().map(|n: &N| {
-                    if let Some((c, _d)) = self.links.get(&(*v, *n)) {
-                        (*n, *c)
-                    } else {
-                        let bypass_cost = bypasser(&self, *v, *n);
-                        (*n, bypass_cost)
-                    }
-                }).collect::<Vec<(N, C)>>()
-            }, |v| *v == goal)
+            pathfinding::directed::dijkstra::dijkstra(
+                &start,
+                |v: &N| {
+                    self.nodes
+                        .iter()
+                        .map(|n: &N| {
+                            if let Some((c, _d)) = self.links.get(&(*v, *n)) {
+                                (*n, *c)
+                            } else {
+                                let bypass_cost = bypasser(&self, *v, *n);
+                                (*n, bypass_cost)
+                            }
+                        })
+                        .collect::<Vec<(N, C)>>()
+                },
+                |v| *v == goal,
+            )
         } else {
-            pathfinding::directed::dijkstra::dijkstra(&start, |v: &N| {
-                self.links.iter().filter(|((a, _b), (_c, _d))| {
-                    *a == *v
-                }).map(|((_a, b), (c, _d))| (*b, *c)).collect::<Vec<(N, C)>>()
-            }, |v| *v == goal)
+            pathfinding::directed::dijkstra::dijkstra(
+                &start,
+                |v: &N| {
+                    self.links
+                        .iter()
+                        .filter(|((a, _b), (_c, _d))| *a == *v)
+                        .map(|((_a, b), (c, _d))| (*b, *c))
+                        .collect::<Vec<(N, C)>>()
+                },
+                |v| *v == goal,
+            )
         };
 
         Ok(result)
@@ -79,7 +94,6 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
     }
 
     pub fn get_link(&self, from: &N, to: &N) -> Result<&(C, D), String> {
-
         self.check_node(from)?;
         self.check_node(to)?;
 
@@ -87,6 +101,6 @@ impl<N: Eq + Hash + Copy + Display, C: Hash + PrimInt, D> Graph<N, C, D> {
             Ok(link)
         } else {
             Err(format!("Link {} -> {} does not exist", from, to))
-        }
+        };
     }
 }
