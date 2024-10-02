@@ -40,10 +40,8 @@ jobs:
           args: -- --check
 
       # Step 12: Run clippy to check for lints
-      - name: Run clippy
-        uses: actions-rs/cargo@v1
+      - uses: actions-rs/clippy-check@v1
         with:
-          command: clippy
           args: --all-features
 
       - name: Documentation
